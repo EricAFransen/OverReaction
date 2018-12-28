@@ -7,12 +7,8 @@ public class DragDrop : MonoBehaviour {
     private bool dragging = false;
     // Tells the index of the card in the controller this card represents
     public int index;
-    // Holds the controller for the game
-    private CardController cardController;
 	// Use this for initialization
 	void Start () {
-        // Grab the controller attached to the main camera
-        cardController = Camera.main.GetComponent<CardController>();
 	}
 
     // Called whenever the card is clicked
@@ -30,6 +26,7 @@ public class DragDrop : MonoBehaviour {
             if (Physics.Raycast(ray, out hit))
 
             {
+                ICardController cardController = Camera.main.GetComponent<MainController>().CardController;
                 cardController.PlayCard(index);
                 Destroy(gameObject);
             }

@@ -110,7 +110,8 @@ public class GameSparksManager : MonoBehaviour {
             deck.Add(index, cardDisplay);
         }
 
-        CardController.Controller.setDeck(deck);
+        ICardController CardController = Camera.main.GetComponent<MainController>().CardController;
+        CardController.SetDeck(deck);
     }
 
     // Applies a given card to the simulation 
@@ -121,7 +122,7 @@ public class GameSparksManager : MonoBehaviour {
         string peerId = data.GetString(2);
         Debug.Log("Request for host to play card: " + cardIndex + " for user: " + peerId);
         // Play the card
-        CardController.Controller.PlayCard(peerId, cardIndex);
+        Camera.main.GetComponent<MainController>().CardController.PlayCard(peerId, cardIndex);
     }
 
     // This response will handle a reponse after trying to play a card
@@ -183,18 +184,18 @@ public class GameSparksManager : MonoBehaviour {
     }
 
     // Serialize all players decks and send them out. See network docs for serialization patterns
-    public void sendInitialDeck(Dictionary<string, Dictionary<int, Card>> cards) {
+    public void sendInitialDeck(Dictionary<string, Dictionary<int, ICard>> cards) {
         Debug.Log("Sending the initial deck states");
         RTData rTData = new RTData();
         uint offset = 1;
         rTData.SetInt(offset++, cards.Count);
 
-        foreach (KeyValuePair<string, Dictionary<int, Card>> playerPair in cards) {
+        foreach (KeyValuePair<string, Dictionary<int, ICard>> playerPair in cards) {
             // For each pair in the deck of a specific player
             rTData.SetInt(offset++, playerPair.Value.Count); // Set the first int to tell the length of a deck
             rTData.SetString(offset++, playerPair.Key); // add the players peerID to preface their deck
-            foreach (KeyValuePair<int, Card> deckPair in playerPair.Value) {
-                rTData.SetString(offset++, deckPair.Value.ToString()); // add the cards displayString
+            foreach (KeyValuePair<int, ICard> deckPair in playerPair.Value) {
+                rTData.SetString(offset++, deckPair.Value.GetName() + "\n" + deckPair.Value.GetDescription()); // add the cards displayString
                 rTData.SetInt(offset++, deckPair.Key); // Add the cards position
             }
         }

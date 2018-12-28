@@ -18,20 +18,20 @@ public class Deck : MonoBehaviour {
     // The stack that holds all the indexes of the cards to play
     private Stack<int> Indexes;
     // The Card controller for the game
-    private CardController cardController;
+    private ICardController cardController;
     
 	// Use this for initialization
 	void Start () {
         // TODO: Check if the player is the host
 
         // Get the card controller from the camera
-        cardController = Camera.main.GetComponent<CardController>();
+        cardController = Camera.main.GetComponent<MainController>().CardController;
         // Check if the card controller has been initialized
-        if (!cardController.IsInitialized)
-            cardController.Init(IsHost);
+        cardController.Init();
         // Run the test if true
         if (RunTest) {
-            CardParser Parser = new CardParser(new System.Random());
+            CardFactory Parser = new CardFactory();
+            Parser.AutoAddParsers();
             if (!ParserTest.Test(Parser))
                 Debug.LogError("ParseTest failed!");
             else
@@ -39,7 +39,7 @@ public class Deck : MonoBehaviour {
         }
         // Initialize the stack
         Indexes = new Stack<int>();
-        if (cardController.SparksManager.iAmHost) {
+        if (GameSparksManager.instance.iAmHost) {
             // Get the number of cards from the controller
             int max = cardController.GetNumberOfCards();
             // Initialize a list to shuffle
@@ -143,7 +143,7 @@ public class Deck : MonoBehaviour {
             // Get the actual text from the text box
             TextMesh tm = Obj.GetComponent<TextMesh>();
             // Set the text on the text box
-            tm.text = cardController.GetCardInfo(index);
+            tm.text = cardController.GetCardDescription(index);
             // Set the text size
             tm.characterSize = 0.1f;
             // Set the font size

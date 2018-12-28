@@ -34,7 +34,7 @@ public class Simulation : MonoBehaviour
     private bool iAmOnline;
 
     public double Modifier;
-    private GeneralModifierCard.ModifierType CurrentModifier;
+    private RateModifierCard.ModifierType CurrentModifier;
 
 
     private GameObject[] reactionDisplay;
@@ -95,7 +95,7 @@ public class Simulation : MonoBehaviour
 
         //creates the beaker contents
         beaker = new Beaker(liveSpecies);
-        CurrentModifier = GeneralModifierCard.ModifierType.Empty;
+        CurrentModifier = RateModifierCard.ModifierType.Unhandled;
         Modifier = 0;
 
         //Modifier = MODIFIER_BASE;
@@ -121,7 +121,7 @@ public class Simulation : MonoBehaviour
             hand[i] = null;
         }
 
-        CurrentModifier = GeneralModifierCard.ModifierType.Empty;
+        CurrentModifier = RateModifierCard.ModifierType.Unhandled;
 
         //initializes the reactions 
         /*//Decremented button cards
@@ -142,7 +142,7 @@ public class Simulation : MonoBehaviour
 
     private void Update()
     {
-        if ((CurrentModifier != GeneralModifierCard.ModifierType.Empty) && Input.GetMouseButtonDown(0))
+        if ((CurrentModifier != RateModifierCard.ModifierType.Unhandled) && Input.GetMouseButtonDown(0))
         {
             GameObject b0 = GameObject.Find("RunningReact0");
             //b0.SetActive(true);
@@ -478,7 +478,7 @@ public class Simulation : MonoBehaviour
                 //Debug.Log(i+":");
                 if (reactions.Count > i) {
                     reactionDisplayText[i].GetComponent<TextMesh>().text = reactions[i].EquationMinimal() + "\n" + string.Format("{0:0.00}", reactions[i].time);
-                    if (CurrentModifier != GeneralModifierCard.ModifierType.Empty) {
+                    if (CurrentModifier != RateModifierCard.ModifierType.Unhandled) {
                         //Debug.Log("asdf");
                         reactionDisplayText[i].GetComponent<TextMesh>().color = Color.blue;
                     }
@@ -718,10 +718,10 @@ public class Simulation : MonoBehaviour
         return reactions.IndexOf(reaction);
     }
 
-    public int SetUpModifier(GeneralModifierCard.ModifierType Type, double m)
+    public int SetUpModifier(RateModifierCard.ModifierType Type, double m)
     {
         Debug.Log("Modifier played");
-        if (CurrentModifier == GeneralModifierCard.ModifierType.Empty)
+        if (CurrentModifier == RateModifierCard.ModifierType.Unhandled)
         {
             Debug.Log("Valid Modifier");
             CurrentModifier = Type;
@@ -737,21 +737,21 @@ public class Simulation : MonoBehaviour
     {
         switch (CurrentModifier)
         {
-            case GeneralModifierCard.ModifierType.ReactionRate:
+            case RateModifierCard.ModifierType.ReactionRate:
                 Debug.Log("Rate change, Modifier: " + Modifier);
                 reactions[i].rate = (int)(reactions[i].rate * Modifier);
                 
                 break;
-            case GeneralModifierCard.ModifierType.Time:
+            case RateModifierCard.ModifierType.ReactionTime:
                 Debug.Log("Time change, Modifier: " + Modifier);
                 reactions[i].time = reactions[i].time * Modifier;
                 break;
-            case GeneralModifierCard.ModifierType.Reactants:
+            case RateModifierCard.ModifierType.ReactionReactants:
                 Debug.Log("Reactants change, Modifier: " + Modifier);
                 for (int j = 0; j < reactions[i].reactants.Length; j++)
                     reactions[i].reactants[j] = (int)(reactions[i].reactants[j] * Modifier);
                 break;
-            case GeneralModifierCard.ModifierType.Products:
+            case RateModifierCard.ModifierType.ReactionProducts:
                 Debug.Log("Products change, Modifier: " + Modifier);
                 for (int j = 0; j < reactions[i].products.Length; j++)
                     reactions[i].products[j] = (int)(reactions[i].products[j] * Modifier);
@@ -760,7 +760,7 @@ public class Simulation : MonoBehaviour
                 //do nothing
                 break;
         }
-        CurrentModifier = GeneralModifierCard.ModifierType.Empty;
+        CurrentModifier = RateModifierCard.ModifierType.Unhandled;
         return 0;
     }
 }
